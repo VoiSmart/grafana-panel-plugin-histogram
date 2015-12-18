@@ -1,5 +1,6 @@
 define([
   'angular',
+  'app/app',
   'lodash',
   'moment',
   'app/core/utils/kbn',
@@ -9,10 +10,11 @@ define([
   './graph',
   './legend',
 ],
-function (angular, _, moment, kbn, TimeSeries, PanelMeta) {
+function (angular, app, _, moment, kbn, TimeSeries, PanelMeta) {
   'use strict';
 
   var module = angular.module('grafana.panels.histogram');
+  app.useModule(module);
 
   module.directive('grafanaPanelHistogram', function() {
     return {
@@ -21,7 +23,7 @@ function (angular, _, moment, kbn, TimeSeries, PanelMeta) {
     };
   });
 
-  module.controller('HistogramCtrl', function($scope, $rootScope, panelSrv, annotationsSrv, panelHelper, $q) {
+  module.controller('HistogramCtrl', function($scope, $rootScope, panelSrv, panelHelper) {
 
     $scope.panelMeta = new PanelMeta({
       panelName: 'Histogram',
@@ -128,8 +130,6 @@ function (angular, _, moment, kbn, TimeSeries, PanelMeta) {
     $scope.refreshData = function(datasource) {
       panelHelper.updateTimeRange($scope);
 
-      $scope.annotationsPromise = annotationsSrv.getAnnotations($scope.dashboard);
-
       return panelHelper.issueMetricQuery($scope, datasource)
         .then($scope.dataHandler, function(err) {
           $scope.seriesList = [];
@@ -140,7 +140,6 @@ function (angular, _, moment, kbn, TimeSeries, PanelMeta) {
 
     $scope.loadSnapshot = function(snapshotData) {
       panelHelper.updateTimeRange($scope);
-      $scope.annotationsPromise = $q.when([]);
       $scope.dataHandler(snapshotData);
     };
 
@@ -289,7 +288,7 @@ function (angular, _, moment, kbn, TimeSeries, PanelMeta) {
       kbn.exportSeriesListToCsv($scope.seriesList);
     };
 
-    panelSrv.init($scope);
+    $scope.init();
 
   });
 
