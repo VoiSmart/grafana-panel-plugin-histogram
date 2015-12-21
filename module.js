@@ -144,6 +144,9 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
       $scope.seriesList = _.map(results.data, $scope.seriesHandler);
 
       $scope.datapointsWarning = $scope.datapointsCount === 0 || $scope.datapointsOutside;
+
+      $scope.panelMeta.loading = false;
+      $scope.render($scope.seriesList);
     };
 
     $scope.seriesHandler = function(seriesData, index) {
