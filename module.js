@@ -102,8 +102,6 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
       targets: [{}],
       // series color overrides
       aliasColors: {},
-      // other style overrides
-      seriesOverrides: [],
     };
 
     _.defaults($scope.panel,_d);
@@ -224,25 +222,6 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
           $scope.hiddenSeries[value.alias] = true;
         });
       }
-    };
-
-    $scope.toggleYAxis = function(info) {
-      var override = _.findWhere($scope.panel.seriesOverrides, { alias: info.alias });
-      if (!override) {
-        override = { alias: info.alias };
-        $scope.panel.seriesOverrides.push(override);
-      }
-      override.yaxis = info.yaxis === 2 ? 1 : 2;
-      $scope.render();
-    };
-
-    $scope.addSeriesOverride = function(override) {
-      $scope.panel.seriesOverrides.push(override || {});
-    };
-
-    $scope.removeSeriesOverride = function(override) {
-      $scope.panel.seriesOverrides = _.without($scope.panel.seriesOverrides, override);
-      $scope.render();
     };
 
     // Called from panel menu
