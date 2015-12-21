@@ -45,11 +45,6 @@ function (angular, _, app, $) {
           var seriesInfo = seriesList[index];
           var popoverScope = scope.$new();
           popoverScope.series = seriesInfo;
-          popoverSrv.show({
-            element: el,
-            templateUrl:  'plugins/histogram/legend.popover.html',
-            scope: popoverScope
-          });
         }
 
         function toggleSeries(e) {
