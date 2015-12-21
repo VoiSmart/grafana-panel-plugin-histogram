@@ -185,7 +185,7 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
       kbn.exportSeriesListToCsv($scope.seriesList);
     };
 
-    $scope.init();
+    panelSrv.init($scope);
 
   });
 
