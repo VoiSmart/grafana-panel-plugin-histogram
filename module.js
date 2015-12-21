@@ -30,6 +30,7 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
       metricsEditor: true,
     });
 
+    $scope.panelMeta.addEditorTab('Display Styles', 'public/plugins/histogram/styleEditor.html');
     $scope.panelMeta.addEditorTab('Time range', 'app/features/panel/partials/panelTime.html');
 
     $scope.panelMeta.addExtendedMenuItem('Export CSV', '', 'exportCsv()');
@@ -102,6 +103,7 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
       targets: [{}],
       // series color overrides
       aliasColors: {},
+      bucketSize: 1,
     };
 
     _.defaults($scope.panel,_d);

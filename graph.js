@@ -134,6 +134,70 @@ function (angular, app, $, _, kbn, GraphTooltip) {
           if (scope.panel.rightYAxisLabel) { gridMargin.right = 20; }
         }
 
+        function getHistogramPairs(series, fillStyle, bucketSize) {
+          var result = [];
+          if (bucketSize === null || bucketSize === 0) {
+            bucketSize = 1;
+          }
+
+          series.yaxis = 1; // TODO check
+
+          series.stats.total = 0;
+          series.stats.max = Number.MIN_VALUE;
+          series.stats.min = Number.MAX_VALUE;
+          series.stats.avg = null;
+          series.stats.current = null;
+
+          var ignoreNulls = fillStyle === 'connected' || fillStyle === 'null';
+          var nullAsZero = fillStyle === 'null as zero';
+          var values = {};
+          var currentValue;
+
+          for (var i = 0; i < series.datapoints.length; i++) {
+            currentValue = series.datapoints[i][0];
+
+            if (currentValue === null) {
+              if (ignoreNulls) { continue; }
+              if (nullAsZero) {
+                currentValue = 0;
+              }
+            }
+
+            if (_.isNumber(currentValue)) {
+              series.stats.total += currentValue;
+            }
+
+            if (currentValue > series.stats.max) {
+              series.stats.max = currentValue;
+            }
+
+            if (currentValue < series.stats.min) {
+              series.stats.min = currentValue;
+            }
+            var bucket = (Math.floor(currentValue / bucketSize)*bucketSize).toFixed(3);
+            if (bucket in values) {
+              values[bucket]++;
+            } else {
+              values[bucket] = 1;
+            }
+          }
+
+          _.forEach(Object.keys(values).sort(), function(key) {
+            result.push([key, values[key]]);
+          });
+          series.stats.timeStep = bucketSize;
+          if (series.stats.max === Number.MIN_VALUE) { series.stats.max = null; }
+          if (series.stats.min === Number.MAX_VALUE) { series.stats.min = null; }
+
+          if (result.length) {
+            series.stats.avg = (series.stats.total / result.length);
+            series.stats.current = currentValue;
+          }
+
+          series.stats.count = result.length;
+          return result;
+        }
+
         // Function for rendering panel
         function render_panel() {
           if (shouldAbortRender()) {
@@ -153,26 +217,12 @@ function (angular, app, $, _, kbn, GraphTooltip) {
             series: {
               stackpercent: panel.stack ? panel.percentage : false,
               stack: panel.percentage ? null : stack,
-              lines:  {
-                show: panel.lines,
-                zero: false,
-                fill: translateFillOption(panel.fill),
-                lineWidth: panel.linewidth,
-                steps: panel.steppedLine
-              },
               bars:   {
-                show: panel.bars,
+                show: true,
                 fill: 1,
                 barWidth: 1,
                 zero: false,
                 lineWidth: 0
-              },
-              points: {
-                show: panel.points,
-                fill: 1,
-                fillColor: false,
-                radius: panel.points ? panel.pointradius : 2
-                // little points when highlight points
               },
               shadowSize: 1
             },
@@ -186,16 +236,12 @@ function (angular, app, $, _, kbn, GraphTooltip) {
               hoverable: true,
               color: '#c8c8c8',
               margin: { left: 0, right: 0 },
-            },
-            selection: {
-              mode: "x",
-              color: '#666'
             }
           };
 
           for (var i = 0; i < data.length; i++) {
             var series = data[i];
-            series.data = series.getFlotPairs(series.nullPointMode || panel.nullPointMode, panel.y_formats);
+            series.data = getHistogramPairs(series, series.nullPointMode || panel.nullPointMode, panel.bucketSize);
 
             // if hidden remove points and disable stack
             if (scope.hiddenSeries[series.alias]) {
@@ -208,7 +254,7 @@ function (angular, app, $, _, kbn, GraphTooltip) {
             options.series.bars.barWidth = data[0].stats.timeStep / 1.5;
           }
 
-          addTimeAxis(options);
+          addHistogramAxis(options);
           configureAxisOptions(data, options);
 
           sortedSeries = _.sortBy(data, function(series) { return series.zindex; });
@@ -249,20 +295,10 @@ function (angular, app, $, _, kbn, GraphTooltip) {
           }
         }
 
-        function addTimeAxis(options) {
-          var ticks = elem.width() / 100;
-          var min = _.isUndefined(scope.range.from) ? null : scope.range.from.valueOf();
-          var max = _.isUndefined(scope.range.to) ? null : scope.range.to.valueOf();
-
+        function addHistogramAxis(options) {
           options.xaxis = {
-            timezone: dashboard.timezone,
             show: scope.panel['x-axis'],
-            mode: "time",
-            min: min,
-            max: max,
-            label: "Datetime",
-            ticks: ticks,
-            timeformat: time_format(scope.interval, ticks, min, max),
+            label: "Values"
           };
         }
 
