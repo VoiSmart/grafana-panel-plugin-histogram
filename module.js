@@ -2,15 +2,13 @@ define([
   'angular',
   'app/app',
   'lodash',
-  'moment',
   'app/core/utils/kbn',
   'app/core/time_series',
   'app/features/panel/panel_meta',
-  './seriesOverridesCtrl',
   './graph',
   './legend',
 ],
-function (angular, app, _, moment, kbn, TimeSeries, PanelMeta) {
+function (angular, app, _, kbn, TimeSeries, PanelMeta) {
   'use strict';
 
   var module = angular.module('grafana.panels.histogram');
@@ -32,8 +30,6 @@ function (angular, app, _, moment, kbn, TimeSeries, PanelMeta) {
       metricsEditor: true,
     });
 
-    $scope.panelMeta.addEditorTab('Axes & Grid', 'plugins/histogram/axisEditor.html');
-    $scope.panelMeta.addEditorTab('Display Styles', 'plugins/histogram/styleEditor.html');
     $scope.panelMeta.addEditorTab('Time range', 'app/features/panel/partials/panelTime.html');
 
     $scope.panelMeta.addExtendedMenuItem('Export CSV', '', 'exportCsv()');
@@ -112,7 +108,6 @@ function (angular, app, _, moment, kbn, TimeSeries, PanelMeta) {
 
     _.defaults($scope.panel,_d);
     _.defaults($scope.panel.tooltip, _d.tooltip);
-    _.defaults($scope.panel.annotate, _d.annotate);
     _.defaults($scope.panel.grid, _d.grid);
     _.defaults($scope.panel.legend, _d.legend);
 
@@ -144,12 +139,6 @@ function (angular, app, _, moment, kbn, TimeSeries, PanelMeta) {
     };
 
     $scope.dataHandler = function(results) {
-      // png renderer returns just a url
-      if (_.isString(results)) {
-        $scope.render(results);
-        return;
-      }
-
       $scope.datapointsWarning = false;
       $scope.datapointsCount = 0;
       $scope.datapointsOutside = false;
@@ -157,16 +146,6 @@ function (angular, app, _, moment, kbn, TimeSeries, PanelMeta) {
       $scope.seriesList = _.map(results.data, $scope.seriesHandler);
 
       $scope.datapointsWarning = $scope.datapointsCount === 0 || $scope.datapointsOutside;
-
-      $scope.annotationsPromise
-        .then(function(annotations) {
-          $scope.panelMeta.loading = false;
-          $scope.seriesList.annotations = annotations;
-          $scope.render($scope.seriesList);
-        }, function() {
-          $scope.panelMeta.loading = false;
-          $scope.render($scope.seriesList);
-        });
     };
 
     $scope.seriesHandler = function(seriesData, index) {
@@ -182,12 +161,6 @@ function (angular, app, _, moment, kbn, TimeSeries, PanelMeta) {
       });
 
       if (datapoints && datapoints.length > 0) {
-        var last = moment.utc(datapoints[datapoints.length - 1][1]);
-        var from = moment.utc($scope.range.from);
-        if (last - from < -10000) {
-          $scope.datapointsOutside = true;
-        }
-
         $scope.datapointsCount += datapoints.length;
       }
 
