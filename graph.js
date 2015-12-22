@@ -241,6 +241,7 @@ function (angular, app, $, _, kbn, GraphTooltip) {
 
           for (var i = 0; i < data.length; i++) {
             var series = data[i];
+            series.applySeriesOverrides(panel.seriesOverrides);
             series.data = getHistogramPairs(series, series.nullPointMode || panel.nullPointMode, panel.bucketSize);
 
             // if hidden remove points and disable stack
