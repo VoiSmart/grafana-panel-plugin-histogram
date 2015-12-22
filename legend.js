@@ -58,6 +58,15 @@ function (angular, _, app, $) {
 
           $container.empty();
 
+          if (panel.legend.sort) {
+            seriesList = _.sortBy(seriesList, function(series) {
+              return series.stats[panel.legend.sort];
+            });
+            if (panel.legend.sortDesc) {
+              seriesList = seriesList.reverse();
+            }
+          }
+
           for (i = 0; i < seriesList.length; i++) {
             var series = seriesList[i];
 
