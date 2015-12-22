@@ -33,3 +33,44 @@
     </div>
   </div>
 </div>
+
+<div class="editor-row">
+  <div class="section">
+		<h5>Series specific overrides <tip>Regex match example: /server[0-3]/i </tip></h5>
+		<div class="tight-form-container">
+			<div class="tight-form" ng-repeat="override in panel.seriesOverrides" ng-controller="SeriesOverridesCtrl">
+				<ul class="tight-form-list">
+					<li class="tight-form-item">
+						<i class="fa fa-remove pointer" ng-click="removeSeriesOverride(override)"></i>
+					</li>
+
+					<li class="tight-form-item">
+						alias or regex
+					</li>
+
+					<li>
+						<input type="text" ng-model="override.alias" bs-typeahead="getSeriesNames" ng-blur="render()" data-min-length=0 data-items=100 class="input-medium tight-form-input" >
+					</li>
+
+					<li class="tight-form-item" ng-repeat="option in currentOverrides">
+						<i class="pointer fa fa-remove" ng-click="removeOverride(option)"></i>
+						<span ng-show="option.propertyName === 'color'">
+							Color: <i class="fa fa-circle" ng-style="{color:option.value}"></i>
+						</span>
+						<span ng-show="option.propertyName !== 'color'">
+							{{option.name}}: {{option.value}}
+						</span>
+					</li>
+
+					<li class="dropdown" dropdown-typeahead="overrideMenu" dropdown-typeahead-on-select="setOverride($item, $subItem)">
+					</li>
+				</ul>
+				<div class="clearfix"></div>
+			</div>
+		</div>
+
+		<button class="btn btn-inverse" style="margin-top: 20px" ng-click="addSeriesOverride()">
+			Add series specific option
+		</button>
+	</div>
+</div>
