@@ -54,6 +54,25 @@ function (angular, _, app, $) {
           scope.toggleSeries(seriesInfo, e);
         }
 
+        function sortLegend(e) {
+          var el = $(e.currentTarget);
+          var stat = el.data('stat');
+
+          if (stat !== panel.legend.sort) { panel.legend.sortDesc = null; }
+
+          // if already sort ascending, disable sorting
+          if (panel.legend.sortDesc === false) {
+            panel.legend.sort = null;
+            panel.legend.sortDesc = null;
+            render();
+            return;
+          }
+
+          panel.legend.sortDesc = !panel.legend.sortDesc;
+          panel.legend.sort = stat;
+          render();
+        }
+
         function getTableHeaderHtml(statName) {
           if (!panel.legend[statName]) { return ""; }
           var html = '<th class="pointer" data-stat="' + statName + '">' + statName;
@@ -71,6 +90,7 @@ function (angular, _, app, $) {
             elem.append($container);
             $container.on('click', '.graph-legend-icon', openColorSelector);
             $container.on('click', '.graph-legend-alias', toggleSeries);
+            $container.on('click', 'th', sortLegend);
             firstRender = false;
           }
 
