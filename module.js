@@ -31,7 +31,7 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
       metricsEditor: true,
     });
 
-    $scope.panelMeta.addEditorTab('Axes & Grid', 'plugins/histogram/axisEditor.html');
+    $scope.panelMeta.addEditorTab('Axes & Grid', 'public/plugins/histogram/axisEditor.html');
     $scope.panelMeta.addEditorTab('Display Styles', 'public/plugins/histogram/styleEditor.html');
     $scope.panelMeta.addEditorTab('Time range', 'app/features/panel/partials/panelTime.html');
 
