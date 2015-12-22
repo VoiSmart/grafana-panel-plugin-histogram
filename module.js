@@ -235,6 +235,12 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
       $scope.get_data();
     };
 
+    $scope.legendValuesOptionChanged = function() {
+      var legend = $scope.panel.legend;
+      legend.values = legend.min || legend.max || legend.avg || legend.current || legend.total;
+      $scope.render();
+    };
+
     $scope.exportCsv = function() {
       kbn.exportSeriesListToCsv($scope.seriesList);
     };
