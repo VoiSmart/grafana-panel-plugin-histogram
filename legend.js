@@ -54,6 +54,18 @@ function (angular, _, app, $) {
           scope.toggleSeries(seriesInfo, e);
         }
 
+        function getTableHeaderHtml(statName) {
+          if (!panel.legend[statName]) { return ""; }
+          var html = '<th class="pointer" data-stat="' + statName + '">' + statName;
+
+          if (panel.legend.sort === statName) {
+            var cssClass = panel.legend.sortDesc ? 'fa fa-caret-down' : 'fa fa-caret-up' ;
+            html += ' <span class="' + cssClass + '"></span>';
+          }
+
+          return html + '</th>';
+        }
+
         function render() {
           if (firstRender) {
             elem.append($container);
@@ -65,6 +77,22 @@ function (angular, _, app, $) {
           seriesList = data;
 
           $container.empty();
+
+          $container.toggleClass('graph-legend-table', panel.legend.alignAsTable === true);
+
+          if (panel.legend.alignAsTable) {
+            var header = '<tr>';
+            header += '<th colspan="2" style="text-align:left"></th>';
+            if (panel.legend.values) {
+              header += getTableHeaderHtml('min');
+              header += getTableHeaderHtml('max');
+              header += getTableHeaderHtml('avg');
+              header += getTableHeaderHtml('current');
+              header += getTableHeaderHtml('total');
+            }
+            header += '</tr>';
+            $container.append($(header));
+          }
 
           if (panel.legend.sort) {
             seriesList = _.sortBy(seriesList, function(series) {
