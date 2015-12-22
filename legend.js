@@ -47,10 +47,18 @@ function (angular, _, app, $) {
           popoverScope.series = seriesInfo;
         }
 
+        function toggleSeries(e) {
+          var el = $(e.currentTarget);
+          var index = getSeriesIndexForElement(el);
+          var seriesInfo = seriesList[index];
+          scope.toggleSeries(seriesInfo, e);
+        }
+
         function render() {
           if (firstRender) {
             elem.append($container);
             $container.on('click', '.graph-legend-icon', openColorSelector);
+            $container.on('click', '.graph-legend-alias', toggleSeries);
             firstRender = false;
           }
 

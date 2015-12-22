@@ -180,6 +180,55 @@ function (angular, app, _, kbn, TimeSeries, PanelMeta) {
       $scope.render();
     };
 
+    $scope.toggleSeries = function(serie, event) {
+      if (event.ctrlKey || event.metaKey || event.shiftKey) {
+        if ($scope.hiddenSeries[serie.alias]) {
+          delete $scope.hiddenSeries[serie.alias];
+        }
+        else {
+          $scope.hiddenSeries[serie.alias] = true;
+        }
+      } else {
+        $scope.toggleSeriesExclusiveMode(serie);
+      }
+
+      $scope.render();
+    };
+
+    $scope.toggleSeriesExclusiveMode = function(serie) {
+      var hidden = $scope.hiddenSeries;
+
+      if (hidden[serie.alias]) {
+        delete hidden[serie.alias];
+      }
+
+      // check if every other series is hidden
+      var alreadyExclusive = _.every($scope.seriesList, function(value) {
+        if (value.alias === serie.alias) {
+          return true;
+        }
+
+        return hidden[value.alias];
+      });
+
+      if (alreadyExclusive) {
+        // remove all hidden series
+        _.each($scope.seriesList, function(value) {
+          delete $scope.hiddenSeries[value.alias];
+        });
+      }
+      else {
+        // hide all but this serie
+        _.each($scope.seriesList, function(value) {
+          if (value.alias === serie.alias) {
+            return;
+          }
+
+          $scope.hiddenSeries[value.alias] = true;
+        });
+      }
+    };
+
     // Called from panel menu
     $scope.toggleLegend = function() {
       $scope.panel.legend.show = !$scope.panel.legend.show;
