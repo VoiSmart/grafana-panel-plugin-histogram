@@ -1,7 +1,7 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'app/plugins/panel/graph/module', './template'], function (_export, _context) {
-  var MetricsPanelCtrl, GraphCtrl, template, _createClass, _get, HistogramCtrl;
+System.register(['app/plugins/sdk', 'app/plugins/panel/graph/module', 'app/core/utils/kbn', './template'], function (_export, _context) {
+  var MetricsPanelCtrl, GraphCtrl, kbn, template, _createClass, _get, HistogramCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -38,6 +38,8 @@ System.register(['app/plugins/sdk', 'app/plugins/panel/graph/module', './templat
       MetricsPanelCtrl = _appPluginsSdk.MetricsPanelCtrl;
     }, function (_appPluginsPanelGraphModule) {
       GraphCtrl = _appPluginsPanelGraphModule.GraphCtrl;
+    }, function (_appCoreUtilsKbn) {
+      kbn = _appCoreUtilsKbn.default;
     }, function (_template) {
       template = _template.default;
     }],
@@ -88,17 +90,66 @@ System.register(['app/plugins/sdk', 'app/plugins/panel/graph/module', './templat
       _export('HistogramCtrl', HistogramCtrl = function (_GraphCtrl) {
         _inherits(HistogramCtrl, _GraphCtrl);
 
-        function HistogramCtrl() {
+        /** @ngInject */
+
+        function HistogramCtrl($scope, $injector, $rootScope) {
           _classCallCheck(this, HistogramCtrl);
 
-          return _possibleConstructorReturn(this, Object.getPrototypeOf(HistogramCtrl).apply(this, arguments));
+          var annotationsSrv = {
+            getAnnotations: function getAnnotations() {}
+          };
+
+          var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(HistogramCtrl).call(this, $scope, $injector, annotationsSrv));
+
+          _this.$rootScope = $rootScope;
+          _this.annotationsSrv = annotationsSrv;
+          return _this;
         }
 
         _createClass(HistogramCtrl, [{
           key: 'onInitEditMode',
           value: function onInitEditMode() {
-            _get(Object.getPrototypeOf(HistogramCtrl.prototype), 'onInitEditMode', this).call(this);
-            this.addEditorTab('Histogram Options', 'public/plugins/grafana-histogram-panel/tab_options.html');
+            this.addEditorTab('Legend', 'public/app/plugins/panel/graph/tab_legend.html', 2);
+            this.addEditorTab('Display', 'public/plugins/grafana-histogram-panel/tab_display.html', 3);
+            this.addEditorTab('Histogram Options', 'public/plugins/grafana-histogram-panel/tab_options.html', 4);
+
+            this.logScales = {
+              'linear': 1,
+              'log (base 2)': 2,
+              'log (base 10)': 10,
+              'log (base 32)': 32,
+              'log (base 1024)': 1024
+            };
+            this.unitFormats = kbn.getUnitFormats();
+          }
+        }, {
+          key: 'issueQueries',
+          value: function issueQueries(datasource) {
+            return _get(Object.getPrototypeOf(HistogramCtrl.prototype), 'issueQueries', this).call(this, datasource);
+          }
+        }, {
+          key: 'onDataSnapshotLoad',
+          value: function onDataSnapshotLoad(snapshotData) {
+            this.onDataReceived(snapshotData);
+          }
+        }, {
+          key: 'onDataReceived',
+          value: function onDataReceived(dataList) {
+            // png renderer returns just a url
+            if (_.isString(dataList)) {
+              this.render(dataList);
+              return;
+            }
+
+            this.datapointsWarning = false;
+            this.datapointsCount = 0;
+            this.datapointsOutside = false;
+            this.seriesList = dataList.map(this.seriesHandler.bind(this));
+            this.datapointsWarning = this.datapointsCount === 0 || this.datapointsOutside;
+
+            this.loading = false;
+            this.seriesList.annotations = null;
+            this.render(this.seriesList);
           }
         }]);
 
