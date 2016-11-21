@@ -1,6 +1,8 @@
 'use strict';
 
 System.register(['jquery'], function (_export, _context) {
+  "use strict";
+
   var $;
   function HistogramTooltip(elem, dashboard, scope, getSeriesFn) {
     var self = this;

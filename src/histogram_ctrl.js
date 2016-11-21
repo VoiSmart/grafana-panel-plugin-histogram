@@ -25,6 +25,8 @@ export class HistogramCtrl extends MetricsPanelCtrl {
       datasource: null,
       // sets client side (flot) or native graphite png renderer (png)
       renderer: 'flot',
+      // sets bucket mode (size) for wxact bucket size or (count) to calculate size from min,max and count values
+      bucketMode: 'size',
       yaxes: [
         {
           label: null,
@@ -117,8 +119,8 @@ export class HistogramCtrl extends MetricsPanelCtrl {
 
   onInitEditMode() {
     this.addEditorTab('Legend', 'public/app/plugins/panel/graph/tab_legend.html', 2);
-    this.addEditorTab('Display', 'public/plugins/grafana-histogram-panel/tab_display.html', 3);
-    this.addEditorTab('Histogram Options', 'public/plugins/grafana-histogram-panel/tab_options.html', 4);
+    this.addEditorTab('Display', 'public/plugins/mtanda-histogram-panel/tab_display.html', 3);
+    this.addEditorTab('Histogram Options', 'public/plugins/mtanda-histogram-panel/tab_options.html', 4);
 
     this.logScales = {
       'linear': 1,
@@ -142,7 +144,11 @@ export class HistogramCtrl extends MetricsPanelCtrl {
   }
 
   issueQueries(datasource) {
-    this.annotationsPromise = this.annotationsSrv.getAnnotations(this.dashboard);
+    this.annotationsPromise = this.annotationsSrv.getAnnotations({
+      dashboard: this.dashboard,
+      panel: this.panel,
+      range: this.range,
+    });
     return super.issueQueries(datasource);
   }
 
@@ -151,7 +157,11 @@ export class HistogramCtrl extends MetricsPanelCtrl {
   }
 
   onDataSnapshotLoad(snapshotData) {
-    this.annotationsPromise = this.annotationsSrv.getAnnotations(this.dashboard);
+    this.annotationsPromise = this.annotationsSrv.getAnnotations({
+      dashboard: this.dashboard,
+      panel: this.panel,
+      range: this.range,
+    });
     this.onDataReceived(snapshotData);
   }
 
@@ -214,13 +224,13 @@ export class HistogramCtrl extends MetricsPanelCtrl {
   onRender() {
     if (!this.seriesList) { return; }
 
-    for (let series of this.seriesList) {
+    _.each(this.seriesList, series => {
       series.applySeriesOverrides(this.panel.seriesOverrides);
 
       if (series.unit) {
         this.panel.yaxes[series.yaxis-1].format = series.unit;
       }
-    }
+    });
   }
 
   changeSeriesColor(series, color) {
