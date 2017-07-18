@@ -142,7 +142,11 @@ export class HistogramCtrl extends MetricsPanelCtrl {
   }
 
   issueQueries(datasource) {
-    this.annotationsPromise = this.annotationsSrv.getAnnotations(this.dashboard);
+    this.annotationsPromise = this.annotationsSrv.getAnnotations({
+      dashboard: this.dashboard,
+      panel: this.panel,
+      range: this.range,
+    });
     return super.issueQueries(datasource);
   }
 
@@ -151,7 +155,11 @@ export class HistogramCtrl extends MetricsPanelCtrl {
   }
 
   onDataSnapshotLoad(snapshotData) {
-    this.annotationsPromise = this.annotationsSrv.getAnnotations(this.dashboard);
+    this.annotationsPromise = this.annotationsSrv.getAnnotations({
+      dashboard: this.dashboard,
+      panel: this.panel,
+      range: this.range,
+    });
     this.onDataReceived(snapshotData);
   }
 
