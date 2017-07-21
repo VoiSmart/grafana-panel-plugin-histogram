@@ -1,6 +1,8 @@
 'use strict';
 
 System.register(['angular', 'jquery', 'moment', 'lodash', 'app/core/utils/kbn', './histogram_tooltip.js', 'jquery.flot', './flot/jquery.flot.orderBars', 'jquery.flot.selection', 'jquery.flot.time', 'jquery.flot.stack', 'jquery.flot.stackpercent', 'jquery.flot.fillbelow', 'jquery.flot.crosshair', 'app/plugins/panel/graph/jquery.flot.events'], function (_export, _context) {
+  "use strict";
+
   var angular, $, moment, _, kbn, HistogramTooltip;
 
   return {

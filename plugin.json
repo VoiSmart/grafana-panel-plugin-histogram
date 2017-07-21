@@ -1,7 +1,7 @@
 {
   "type": "panel",
   "name": "Histogram",
-  "id": "grafana-histogram-panel",
+  "id": "mtanda-histogram-panel",
 
   "info": {
     "description": "Histogram Panel for Grafana",

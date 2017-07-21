@@ -1,6 +1,8 @@
 'use strict';
 
 System.register(['app/plugins/panel/graph/legend', 'app/plugins/panel/graph/series_overrides_ctrl', './template', 'angular', 'moment', 'app/core/utils/kbn', 'lodash', 'app/core/time_series2', 'app/core/utils/file_export', 'app/plugins/sdk'], function (_export, _context) {
+  "use strict";
+
   var template, angular, moment, kbn, _, TimeSeries, fileExport, MetricsPanelCtrl, _createClass, _get, HistogramCtrl;
 
   function _classCallCheck(instance, Constructor) {
@@ -99,11 +101,10 @@ System.register(['app/plugins/panel/graph/legend', 'app/plugins/panel/graph/seri
         _inherits(HistogramCtrl, _MetricsPanelCtrl);
 
         /** @ngInject */
-
         function HistogramCtrl($scope, $injector, annotationsSrv) {
           _classCallCheck(this, HistogramCtrl);
 
-          var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(HistogramCtrl).call(this, $scope, $injector));
+          var _this = _possibleConstructorReturn(this, (HistogramCtrl.__proto__ || Object.getPrototypeOf(HistogramCtrl)).call(this, $scope, $injector));
 
           _this.annotationsSrv = annotationsSrv;
           _this.hiddenSeries = {};
@@ -235,8 +236,12 @@ System.register(['app/plugins/panel/graph/legend', 'app/plugins/panel/graph/seri
         }, {
           key: 'issueQueries',
           value: function issueQueries(datasource) {
-            this.annotationsPromise = this.annotationsSrv.getAnnotations(this.dashboard);
-            return _get(Object.getPrototypeOf(HistogramCtrl.prototype), 'issueQueries', this).call(this, datasource);
+            this.annotationsPromise = this.annotationsSrv.getAnnotations({
+              dashboard: this.dashboard,
+              panel: this.panel,
+              range: this.range
+            });
+            return _get(HistogramCtrl.prototype.__proto__ || Object.getPrototypeOf(HistogramCtrl.prototype), 'issueQueries', this).call(this, datasource);
           }
         }, {
           key: 'zoomOut',
@@ -246,7 +251,11 @@ System.register(['app/plugins/panel/graph/legend', 'app/plugins/panel/graph/seri
         }, {
           key: 'onDataSnapshotLoad',
           value: function onDataSnapshotLoad(snapshotData) {
-            this.annotationsPromise = this.annotationsSrv.getAnnotations(this.dashboard);
+            this.annotationsPromise = this.annotationsSrv.getAnnotations({
+              dashboard: this.dashboard,
+              panel: this.panel,
+              range: this.range
+            });
             this.onDataReceived(snapshotData);
           }
         }, {
