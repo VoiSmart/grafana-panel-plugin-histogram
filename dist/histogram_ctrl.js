@@ -116,6 +116,8 @@ System.register(['app/plugins/panel/graph/legend', 'app/plugins/panel/graph/seri
             datasource: null,
             // sets client side (flot) or native graphite png renderer (png)
             renderer: 'flot',
+            // sets bucket mode (size) for wxact bucket size or (count) to calculate size from min,max and count values
+            bucketMode: 'size',
             yaxes: [{
               label: null,
               show: true,
@@ -208,8 +210,8 @@ System.register(['app/plugins/panel/graph/legend', 'app/plugins/panel/graph/seri
           key: 'onInitEditMode',
           value: function onInitEditMode() {
             this.addEditorTab('Legend', 'public/app/plugins/panel/graph/tab_legend.html', 2);
-            this.addEditorTab('Display', 'public/plugins/grafana-histogram-panel/tab_display.html', 3);
-            this.addEditorTab('Histogram Options', 'public/plugins/grafana-histogram-panel/tab_options.html', 4);
+            this.addEditorTab('Display', 'public/plugins/mtanda-histogram-panel/tab_display.html', 3);
+            this.addEditorTab('Histogram Options', 'public/plugins/mtanda-histogram-panel/tab_options.html', 4);
 
             this.logScales = {
               'linear': 1,
@@ -321,38 +323,19 @@ System.register(['app/plugins/panel/graph/legend', 'app/plugins/panel/graph/seri
         }, {
           key: 'onRender',
           value: function onRender() {
+            var _this3 = this;
+
             if (!this.seriesList) {
               return;
             }
 
-            var _iteratorNormalCompletion = true;
-            var _didIteratorError = false;
-            var _iteratorError = undefined;
+            _.each(this.seriesList, function (series) {
+              series.applySeriesOverrides(_this3.panel.seriesOverrides);
 
-            try {
-              for (var _iterator = this.seriesList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                var series = _step.value;
-
-                series.applySeriesOverrides(this.panel.seriesOverrides);
-
-                if (series.unit) {
-                  this.panel.yaxes[series.yaxis - 1].format = series.unit;
-                }
+              if (series.unit) {
+                _this3.panel.yaxes[series.yaxis - 1].format = series.unit;
               }
-            } catch (err) {
-              _didIteratorError = true;
-              _iteratorError = err;
-            } finally {
-              try {
-                if (!_iteratorNormalCompletion && _iterator.return) {
-                  _iterator.return();
-                }
-              } finally {
-                if (_didIteratorError) {
-                  throw _iteratorError;
-                }
-              }
-            }
+            });
           }
         }, {
           key: 'changeSeriesColor',
@@ -378,7 +361,7 @@ System.register(['app/plugins/panel/graph/legend', 'app/plugins/panel/graph/seri
         }, {
           key: 'toggleSeriesExclusiveMode',
           value: function toggleSeriesExclusiveMode(serie) {
-            var _this3 = this;
+            var _this4 = this;
 
             var hidden = this.hiddenSeries;
 
@@ -398,7 +381,7 @@ System.register(['app/plugins/panel/graph/legend', 'app/plugins/panel/graph/seri
             if (alreadyExclusive) {
               // remove all hidden series
               _.each(this.seriesList, function (value) {
-                delete _this3.hiddenSeries[value.alias];
+                delete _this4.hiddenSeries[value.alias];
               });
             } else {
               // hide all but this serie
@@ -407,7 +390,7 @@ System.register(['app/plugins/panel/graph/legend', 'app/plugins/panel/graph/seri
                   return;
                 }
 
-                _this3.hiddenSeries[value.alias] = true;
+                _this4.hiddenSeries[value.alias] = true;
               });
             }
           }
